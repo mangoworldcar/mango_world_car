@@ -1,13 +1,16 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:mango_world_car/app/controllers/home_controller.dart';
 import 'package:flutter_webview_pro/webview_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 
 import '../routes/app_pages.dart';
 
@@ -24,16 +27,17 @@ class HomePage extends GetView<HomeController> {
 
   void _permission() async {
 
-    Map<Permission,PermissionStatus> statuses = await [Permission.camera,Permission.storage].request();
+    Map<Permission,PermissionStatus> statuses = await [Permission.camera,Permission.storage,Permission.microphone].request();
 
-    if((statuses[Permission.camera]!.isGranted  || statuses[Permission.camera]!.isLimited)
-        && (statuses[Permission.storage]!.isGranted  || statuses[Permission.storage]!.isLimited) ){
+    if((statuses[Permission.camera]!.isGranted  )
+        && (statuses[Permission.storage]!.isGranted )&& (statuses[Permission.microphone]!.isGranted ) ){
 
     }
     else{
-      openAppSettings();
+     //openAppSettings();
     }
   }
+
 
 
   @override
@@ -42,51 +46,101 @@ class HomePage extends GetView<HomeController> {
       WillPopScope(
         child:
             Scaffold(
-              body:
-              SafeArea(
-                child:
-            Obx(() =>
-                  WebView(
-                   // initialUrl: "${controller.pageUrl.value}",
-                    initialUrl: 'https://client.mangoworldcar.com${controller.pageUrl.value}',
-                    debuggingEnabled: true,
-                    userAgent: "mangoworld",
-                    gestureNavigationEnabled: true,
-                    zoomEnabled: false,
-                    javascriptMode: JavascriptMode.unrestricted,
-                    onWebViewCreated: (WebViewController webViewController) {
-                      _controller.complete(webViewController);
-                      _webViewController = webViewController;
-                      _permission();
-                    },
-                    javascriptChannels: <JavascriptChannel>{
-                      _snackbarJavascriptChannel(context),
-                      _moveToPageJavascriptChannel(context),
-                      _moveToBackJavascriptChannel(context),
-                    },
+                resizeToAvoidBottomInset: true,
+                body:
+                  SafeArea(
+                    child:
+                      Obx(() {
+
+                      if(this.controller.connectionType == 0  )
+                      {
+                        return Center(
+                          child: Text("Please Check Network"),
+                        );
+                      }
+                      else{
+
+                        return WebView(
+                          // initialUrl: "${controller.pageUrl.value}",
+                          initialUrl: 'https://client.mangoworldcar.com${controller.pageUrl.value}',
+                          debuggingEnabled: false,
+                          userAgent: "mangoworld",
+                          gestureNavigationEnabled: true,
+                          zoomEnabled: false,
+
+                          javascriptMode: JavascriptMode.unrestricted,
+                          onWebViewCreated: (WebViewController webViewController) {
+
+                            if(this.controller.m_b_controllComplete == false){
+                              _controller.complete(webViewController);
+                              _webViewController = webViewController;
+                              _permission();
+                              //this.controller.signInWithGoogle();
+                              this.controller.m_b_controllComplete.value = true;
+                            }
+
+                          },
+                          javascriptChannels: <JavascriptChannel>{
+
+                            _snackbarJavascriptChannel(context),
+                            _moveToPageJavascriptChannel(context),
+                            _moveToBackJavascriptChannel(context),
+                            _getFcmToken(context),
+                            _fileDownloadJavascriptChannel(context),
+                            _getGoogleLogin(context),
+                            _getAppleLogin(context),
+                            _setCopyText(context)
+                          },
+                        );
+                      }
+                    }
                   )
-              )
             )
           ),
         onWillPop: _onWillPop,
       );
     }
 
-  Future<bool> _onWillPop() {
-    DateTime now = DateTime.now();
-    if (currentBackPressTime == null ||
-        now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
-      currentBackPressTime = now;
-      Fluttertoast.showToast(
-        msg: "Please click BACK again to exit",
-        toastLength: Toast.LENGTH_LONG,
-      );
-      return Future.value(false);
+  Future<bool> _onWillPop() async {
+
+    if(Platform.isAndroid){
+
+      var strCurrentUrl = await _webViewController.currentUrl();
+      if(strCurrentUrl!.isNotEmpty
+          && !(strCurrentUrl!.toLowerCase().contains("/login") || strCurrentUrl!.toLowerCase() == "https://client.mangoworldcar.com/main" || strCurrentUrl!.toLowerCase().contains("/firstlanguegechoice") ) ){
+
+        _webViewController.goBack();
+
+        return Future.value(false);
+      }
+      else{
+        DateTime now = DateTime.now();
+        if (currentBackPressTime == null ||
+            now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+          currentBackPressTime = now;
+          Fluttertoast.showToast(
+            msg: "Please click BACK again to exit",
+            toastLength: Toast.LENGTH_LONG,
+          );
+          return Future.value(false);
+        }
+        return Future.value(true);
+      }
+    }else{
+      DateTime now = DateTime.now();
+      if (currentBackPressTime == null ||
+          now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+        currentBackPressTime = now;
+        Fluttertoast.showToast(
+          msg: "Please click BACK again to exit",
+          toastLength: Toast.LENGTH_LONG,
+        );
+        return Future.value(false);
+      }
+      return Future.value(true);
     }
-    return Future.value(true);
+
   }
-
-
 
   JavascriptChannel _snackbarJavascriptChannel(BuildContext context) {
     return JavascriptChannel(
@@ -104,63 +158,108 @@ class HomePage extends GetView<HomeController> {
         });
     }
 
-    JavascriptChannel _moveToPageJavascriptChannel(BuildContext context) {
+  JavascriptChannel _getFcmToken(BuildContext context){
       return JavascriptChannel(
-          name: 'movetopage',
+          name: 'getfcmtoken',
           onMessageReceived: (JavascriptMessage message) async {
-            Map<String, dynamic> jsonMessage = jsonDecode(message.message);
 
-            String strOpenType = jsonMessage["opentype"];
-            String strMsg = jsonMessage["msg"];
+            FirebaseMessaging.instance.getToken().then((token) {
 
-            int randomNumber = Random().nextInt(100) + 1;
-            if(strOpenType == "closeall") {
+              String javaScriptString = "fn_getFcmToken('"+token!+"')";
 
-              //Get.until((route) => Get.currentRoute == Routes.INITIAL);
-              //Get.toNamed(Routes.DETAILS, arguments:{"url",jsonMessage["url"]} );
-              _webViewController.loadUrl("https://client.mangoworldcar.com" + jsonMessage["url"]);
+              _webViewController.runJavascript(javaScriptString);
+            });
 
-              //_webViewController.reload();
 
-            }
-            else{
 
-              var resultData = await Get.toNamed(Routes.DETAILS+ "?Ran=" + randomNumber.toString(), arguments:{"url": Uri.encodeComponent(jsonMessage["url"])} );
-
-              if(resultData == "reload"){
-                _webViewController.reload();
-              }
-
-            }
-            if(strMsg.isNotEmpty && strMsg != "" ) {
-              Fluttertoast.showToast(
-                msg: strMsg,
-                toastLength: Toast.LENGTH_SHORT,
-              );
-            }
           });
     }
 
-    JavascriptChannel _moveToBackJavascriptChannel(BuildContext context) {
+  JavascriptChannel _getGoogleLogin(BuildContext context){
     return JavascriptChannel(
-        name: 'movetoback',
+        name: 'getGoogleLogin',
         onMessageReceived: (JavascriptMessage message) async {
-          Map<String, dynamic> jsonMessage = jsonDecode(message.message);
 
-          bool bReload = jsonMessage["breload"];
-          String strMsg = jsonMessage["msg"];
+          await this.controller.signInWithGoogle().then((value) {
 
-          if(bReload) {
+            String javaScriptString = "m_loginModule.fn_getGoogleAccessKey('"+value+"')";
 
-            //Get.until((route) => Get.currentRoute == Routes.INITIAL);
-            //Get.toNamed(Routes.DETAILS, arguments:{"url",jsonMessage["url"]} );
-            Get.back(result: "reload");
+            _webViewController.runJavascript(javaScriptString);
+          });
+        });
+    }
+
+  JavascriptChannel _getAppleLogin(BuildContext context){
+    return JavascriptChannel(
+        name: 'getAppleLogin',
+        onMessageReceived: (JavascriptMessage message) async {
+
+          if(Platform.isAndroid){
+
+            String javaScriptString = "m_loginModule.fn_setAppleWebLogin()";
+            _webViewController.runJavascript(javaScriptString);
 
           }
           else{
-            Get.back();
+            await this.controller.signInWithApple().then((value) {
+
+              String javaScriptString = "m_loginModule.fn_getAppleAccessKey('"+value+"')";
+              _webViewController.runJavascript(javaScriptString);
+            });
           }
 
+        });
+  }
+
+
+  JavascriptChannel _setCopyText(BuildContext context){
+    return JavascriptChannel(
+        name: 'setCopyText',
+        onMessageReceived: (JavascriptMessage message) async {
+
+          Map<String, dynamic> jsonMessage = jsonDecode(message.message);
+
+          Clipboard.setData(ClipboardData(text: jsonMessage["text"]));
+
+
+        });
+  }
+
+  JavascriptChannel _moveToPageJavascriptChannel(BuildContext context) {
+
+    String strName = "movetopage";
+
+    if(Platform.isAndroid){
+      //strName = "androidmovetopage";
+    }
+
+    return JavascriptChannel(
+        name: strName,
+        onMessageReceived: (JavascriptMessage message) async {
+          Map<String, dynamic> jsonMessage = jsonDecode(message.message);
+
+          String strOpenType = jsonMessage["opentype"];
+          String strMsg = jsonMessage["msg"];
+
+          int randomNumber = Random().nextInt(100) + 1;
+          if(strOpenType == "closeall") {
+
+            //Get.until((route) => Get.currentRoute == Routes.INITIAL);
+            //Get.toNamed(Routes.DETAILS, arguments:{"url",jsonMessage["url"]} );
+            _webViewController.loadUrl("https://client.mangoworldcar.com" + jsonMessage["url"]);
+
+            //_webViewController.reload();
+
+          }
+          else{
+
+            var resultData = await Get.toNamed(Routes.DETAILS+ "?Ran=" + randomNumber.toString(), arguments:{"url": Uri.encodeComponent(jsonMessage["url"])} );
+
+            if(resultData == "reload"){
+              _webViewController.reload();
+            }
+
+          }
           if(strMsg.isNotEmpty && strMsg != "" ) {
             Fluttertoast.showToast(
               msg: strMsg,
@@ -168,5 +267,80 @@ class HomePage extends GetView<HomeController> {
             );
           }
         });
+  }
+
+  JavascriptChannel _moveToBackJavascriptChannel(BuildContext context) {
+
+    String strName = "movetoback";
+
+    if(Platform.isAndroid){
+      //strName = "androidmovetoback";
     }
+
+    return JavascriptChannel(
+      name: strName,
+      onMessageReceived: (JavascriptMessage message) async {
+        Map<String, dynamic> jsonMessage = jsonDecode(message.message);
+
+        bool bReload = jsonMessage["breload"];
+        String strMsg = jsonMessage["msg"];
+
+        if(bReload) {
+
+          //Get.until((route) => Get.currentRoute == Routes.INITIAL);
+          //Get.toNamed(Routes.DETAILS, arguments:{"url",jsonMessage["url"]} );
+
+          /*if(Platform.isAndroid) {
+
+            await _webViewController.goBack();
+            Future.delayed(Duration(milliseconds: 100), () {
+
+              _webViewController.reload();
+              // Do something
+            });
+
+
+          }
+          else{
+            Get.back(result: "reload");
+          }*/
+
+
+          Get.back(result: "reload");
+        }
+        else{
+          /*if(Platform.isAndroid) {
+            _webViewController.goBack();
+          }
+          else{
+            Get.back();
+          }*/
+
+          Get.back();
+        }
+
+        if(strMsg.isNotEmpty && strMsg != "" ) {
+          Fluttertoast.showToast(
+            msg: strMsg,
+            toastLength: Toast.LENGTH_SHORT,
+          );
+        }
+      });
+  }
+
+
+
+  JavascriptChannel _fileDownloadJavascriptChannel(BuildContext context) {
+
+    return JavascriptChannel(
+        name: "filedownload",
+        onMessageReceived: (JavascriptMessage message) async {
+          Map<String, dynamic> jsonMessage = jsonDecode(message.message);
+
+          String strUrl = jsonMessage["url"];
+          String strFileName = jsonMessage["filename"];
+
+          this.controller.onDownloadFile(strUrl, strFileName);
+        });
+  }
 }
