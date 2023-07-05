@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "1077467230157",
+    "project_id": "mangoworldcar",
+    "storage_bucket": "mangoworldcar.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1077467230157:android:212446c439817c3be21e84",
+        "android_client_info": {
+          "package_name": "com.aig.mangowolrdcar.mango_world_car"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1077467230157-hbnc4j9stubchl7b0usinhhk44qthqgq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aig.mangowolrdcar.mango_world_car",
+            "certificate_hash": "fc2235d31fc1242abf65d310ef71a728c7d6e545"
+          }
+        },
+        {
+          "client_id": "1077467230157-meabhn4q2s5fk59fb7qmbt1k166gkcqr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aig.mangowolrdcar.mango_world_car",
+            "certificate_hash": "90d629a217d0992e230c2376f587cc7a2372dab9"
+          }
+        },
+        {
+          "client_id": "1077467230157-rml8uib8mdkgvekolrr7ekb738mtk5v4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvOZZi_3UHe9FuANakzsjZPMFbY1Ne8cU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1077467230157-8a1sihglv2j41m25lv3lvnp3ug3g1ngj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1077467230157-5upg9mfq4hdt21e7b6f6hkvf3qa6q0lv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.aig.mangowolrdcar.mangoWorldCar"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
