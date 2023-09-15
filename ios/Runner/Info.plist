@@ -26,6 +26,18 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1077467230157-5upg9mfq4hdt21e7b6f6hkvf3qa6q0lv</string>
+				<string>mangoworldcar</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FDAllFilesDownloadedMessage</key>
@@ -86,18 +98,6 @@ Album permissions for attaching photos and videos</string>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
 		<dict/>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.1077467230157-5upg9mfq4hdt21e7b6f6hkvf3qa6q0lv</string>
-				<string>mangoworldcar</string>
-			</array>
-		</dict>
 	</array>
 </dict>
 </plist>

@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:mango_world_car/app/controllers/home_controller.dart';
 import 'package:flutter_webview_pro/webview_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 import '../routes/app_pages.dart';
@@ -38,39 +39,30 @@ class HomePage extends GetView<HomeController> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
+
     return
       WillPopScope(
         child:
             Scaffold(
+                backgroundColor:Colors.white,
                 resizeToAvoidBottomInset: true,
                 body:
                   SafeArea(
                     child:
                       Obx(() {
-
-                      if(this.controller.connectionType == 0  )
-                      {
-                        return Center(
-                          child: Text("Please Check Network"),
-                        );
-                      }
-                      else{
-
-                        return WebView(
-                          // initialUrl: "${controller.pageUrl.value}",
-                          initialUrl: 'https://client.mangoworldcar.com${controller.pageUrl.value}',
+                        return Opacity(
+                          opacity: this.controller.isLoading.value ? 0:1,
+                          child: WebView(
+                          initialUrl: 'https://stageclient.mangoworldcar.com${controller.pageUrl.value}',
                           debuggingEnabled: false,
                           userAgent: "mangoworld",
                           gestureNavigationEnabled: true,
                           zoomEnabled: false,
-
                           javascriptMode: JavascriptMode.unrestricted,
+                          backgroundColor:Colors.white,
                           onWebViewCreated: (WebViewController webViewController) {
-
                             if(this.controller.m_b_controllComplete == false){
                               _controller.complete(webViewController);
                               _webViewController = webViewController;
@@ -78,7 +70,18 @@ class HomePage extends GetView<HomeController> {
                               //this.controller.signInWithGoogle();
                               this.controller.m_b_controllComplete.value = true;
                             }
-
+                          },
+                          onPageFinished: (String url) {
+                            if (this.controller.isLoading.value) {
+                              this.controller.isLoading.value = false;
+                            }
+                          },
+                          navigationDelegate: (NavigationRequest request) {
+                            if (request.url.startsWith('https://wa.me') || request.url.startsWith('https://admin.mangoworldcar.com')) {
+                               launch(request.url); 
+                               return NavigationDecision.prevent;
+                            }
+                            return NavigationDecision.navigate;
                           },
                           javascriptChannels: <JavascriptChannel>{
 
@@ -86,13 +89,14 @@ class HomePage extends GetView<HomeController> {
                             _moveToPageJavascriptChannel(context),
                             _moveToBackJavascriptChannel(context),
                             _getFcmToken(context),
-                            _fileDownloadJavascriptChannel(context),
+                            // _fileDownloadJavascriptChannel(context),
                             _getGoogleLogin(context),
                             _getAppleLogin(context),
                             _setCopyText(context)
                           },
-                        );
-                      }
+                      )
+                    );
+
                     }
                   )
             )
@@ -107,7 +111,7 @@ class HomePage extends GetView<HomeController> {
 
       var strCurrentUrl = await _webViewController.currentUrl();
       if(strCurrentUrl!.isNotEmpty
-          && !(strCurrentUrl!.toLowerCase().contains("/login") || strCurrentUrl!.toLowerCase() == "https://client.mangoworldcar.com/main" || strCurrentUrl!.toLowerCase().contains("/firstlanguegechoice") ) ){
+          && !(strCurrentUrl!.toLowerCase().contains("/login") || strCurrentUrl!.toLowerCase() == "https://stagestageclient.mangoworldcar.com/main" || strCurrentUrl!.toLowerCase().contains("/firstlanguegechoice") ) ){
 
         _webViewController.goBack();
 
@@ -246,7 +250,7 @@ class HomePage extends GetView<HomeController> {
 
             //Get.until((route) => Get.currentRoute == Routes.INITIAL);
             //Get.toNamed(Routes.DETAILS, arguments:{"url",jsonMessage["url"]} );
-            _webViewController.loadUrl("https://client.mangoworldcar.com" + jsonMessage["url"]);
+            _webViewController.loadUrl("https://stagestageclient.mangoworldcar.com" + jsonMessage["url"]);
 
             //_webViewController.reload();
 
@@ -330,17 +334,17 @@ class HomePage extends GetView<HomeController> {
 
 
 
-  JavascriptChannel _fileDownloadJavascriptChannel(BuildContext context) {
+  // JavascriptChannel _fileDownloadJavascriptChannel(BuildContext context) {
 
-    return JavascriptChannel(
-        name: "filedownload",
-        onMessageReceived: (JavascriptMessage message) async {
-          Map<String, dynamic> jsonMessage = jsonDecode(message.message);
+  //   return JavascriptChannel(
+  //       name: "filedownload",
+  //       onMessageReceived: (JavascriptMessage message) async {
+  //         Map<String, dynamic> jsonMessage = jsonDecode(message.message);
 
-          String strUrl = jsonMessage["url"];
-          String strFileName = jsonMessage["filename"];
+  //         String strUrl = jsonMessage["url"];
+  //         String strFileName = jsonMessage["filename"];
 
-          this.controller.onDownloadFile(strUrl, strFileName);
-        });
-  }
+  //         this.controller.onDownloadFile(strUrl, strFileName);
+  //       });
+  // }
 }

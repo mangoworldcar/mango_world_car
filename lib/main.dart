@@ -150,8 +150,8 @@ class _MyAppState extends State<MyApp> {
       title: 'Mango World Car',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white,
+        primaryColor:Colors.white,
+        scaffoldBackgroundColor:Colors.white,
         fontFamily: 'HelveticaNeue',
         visualDensity: VisualDensity.adaptivePlatformDensity,
         //visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -180,8 +180,8 @@ class MyApp extends StatelessWidget {
       title: 'Mango World Car',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: Colors.white,
-        scaffoldBackgroundColor: Colors.white,
+        primaryColor:Colors.white,
+        scaffoldBackgroundColor:Colors.white,
         fontFamily: 'HelveticaNeue',
         visualDensity: VisualDensity.adaptivePlatformDensity,
         //visualDensity: VisualDensity.adaptivePlatformDensity,

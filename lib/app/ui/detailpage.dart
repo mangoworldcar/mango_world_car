@@ -12,6 +12,7 @@ import 'package:flutter_webview_pro/webview_flutter.dart';
 import 'package:mango_world_car/app/controllers/detail_controller.dart';
 import 'package:mango_world_car/app/controllers/home_controller.dart';
 import '../routes/app_pages.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailPage extends StatefulWidget{
 
@@ -37,7 +38,7 @@ class _DetailPage extends State<DetailPage> {
     return Scaffold(
         resizeToAvoidBottomInset: true,
         body: SafeArea(child: WebView(
-          initialUrl: 'https://client.mangoworldcar.com${Uri.decodeComponent(Get.arguments["url"])}',
+          initialUrl: 'https://stageclient.mangoworldcar.com${Uri.decodeComponent(Get.arguments["url"])}',
           debuggingEnabled: false,
           userAgent: "mangoworld",
           gestureNavigationEnabled: false,
@@ -52,11 +53,18 @@ class _DetailPage extends State<DetailPage> {
             _snackbarJavascriptChannel(context),
             _moveToPageJavascriptChannel(context),
             _moveToBackJavascriptChannel(context),
-            _fileDownloadJavascriptChannel(context),
+            // _fileDownloadJavascriptChannel(context),
             _getGoogleLogin(context),
             _getAppleLogin(context),
             _setCopyText(context)
           },
+          navigationDelegate: (NavigationRequest request) {
+                            if (request.url.startsWith('https://wa.me') || request.url.startsWith('https://admin.mangoworldcar.com')) {
+                               launch(request.url); 
+                               return NavigationDecision.prevent;
+                            }
+                            return NavigationDecision.navigate;
+                          },
         ),
         )
     );
@@ -165,19 +173,19 @@ class _DetailPage extends State<DetailPage> {
         });
   }
 
-  JavascriptChannel _fileDownloadJavascriptChannel(BuildContext context) {
+  // JavascriptChannel _fileDownloadJavascriptChannel(BuildContext context) {
 
-    return JavascriptChannel(
-        name: "filedownload",
-        onMessageReceived: (JavascriptMessage message) async {
-          Map<String, dynamic> jsonMessage = jsonDecode(message.message);
+  //   return JavascriptChannel(
+  //       name: "filedownload",
+  //       onMessageReceived: (JavascriptMessage message) async {
+  //         Map<String, dynamic> jsonMessage = jsonDecode(message.message);
 
-          String strUrl = jsonMessage["url"];
-          String strFileName = jsonMessage["filename"];
+  //         String strUrl = jsonMessage["url"];
+  //         String strFileName = jsonMessage["filename"];
 
-          Get.find<DetailController>().onDownloadFile(strUrl, strFileName);
-        });
-  }
+  //         Get.find<DetailController>().onDownloadFile(strUrl, strFileName);
+  //       });
+  // }
 
   JavascriptChannel _getGoogleLogin(BuildContext context){
     return JavascriptChannel(
