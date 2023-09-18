@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1077467230157:android:212446c439817c3be21e84",
         "android_client_info": {
-          "package_name": "com.aig.mangowolrdcar.mango_world_car"
+          "package_name": "com.aig.mangowolrdcar.mango_world_car_v2"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "1077467230157-hbnc4j9stubchl7b0usinhhk44qthqgq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.aig.mangowolrdcar.mango_world_car",
+            "package_name": "com.aig.mangowolrdcar.mango_world_car_v2",
             "certificate_hash": "fc2235d31fc1242abf65d310ef71a728c7d6e545"
           }
         },
@@ -25,7 +25,7 @@
           "client_id": "1077467230157-meabhn4q2s5fk59fb7qmbt1k166gkcqr.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.aig.mangowolrdcar.mango_world_car",
+            "package_name": "com.aig.mangowolrdcar.mango_world_car_v2",
             "certificate_hash": "90d629a217d0992e230c2376f587cc7a2372dab9"
           }
         },

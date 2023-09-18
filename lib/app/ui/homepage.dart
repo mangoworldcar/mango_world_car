@@ -52,12 +52,10 @@ class HomePage extends GetView<HomeController> {
                   SafeArea(
                     child:
                       Obx(() {
-                        return Opacity(
-                          opacity: this.controller.isLoading.value ? 0:1,
-                          child: WebView(
-                          initialUrl: 'https://stageclient.mangoworldcar.com${controller.pageUrl.value}',
+                        return WebView(
+                          initialUrl: 'https://client.mangoworldcar.com${controller.pageUrl.value}',
                           debuggingEnabled: false,
-                          userAgent: "mangoworld",
+                          userAgent: "mangoworld_v2",
                           gestureNavigationEnabled: true,
                           zoomEnabled: false,
                           javascriptMode: JavascriptMode.unrestricted,
@@ -69,11 +67,6 @@ class HomePage extends GetView<HomeController> {
                               _permission();
                               //this.controller.signInWithGoogle();
                               this.controller.m_b_controllComplete.value = true;
-                            }
-                          },
-                          onPageFinished: (String url) {
-                            if (this.controller.isLoading.value) {
-                              this.controller.isLoading.value = false;
                             }
                           },
                           navigationDelegate: (NavigationRequest request) {
@@ -94,7 +87,7 @@ class HomePage extends GetView<HomeController> {
                             _getAppleLogin(context),
                             _setCopyText(context)
                           },
-                      )
+                      
                     );
 
                     }
@@ -111,7 +104,7 @@ class HomePage extends GetView<HomeController> {
 
       var strCurrentUrl = await _webViewController.currentUrl();
       if(strCurrentUrl!.isNotEmpty
-          && !(strCurrentUrl!.toLowerCase().contains("/login") || strCurrentUrl!.toLowerCase() == "https://stagestageclient.mangoworldcar.com/main" || strCurrentUrl!.toLowerCase().contains("/firstlanguegechoice") ) ){
+          && !(strCurrentUrl!.toLowerCase().contains("/login") || strCurrentUrl!.toLowerCase() == "https://client.mangoworldcar.com/main" || strCurrentUrl!.toLowerCase().contains("/firstlanguegechoice") ) ){
 
         _webViewController.goBack();
 
@@ -250,7 +243,7 @@ class HomePage extends GetView<HomeController> {
 
             //Get.until((route) => Get.currentRoute == Routes.INITIAL);
             //Get.toNamed(Routes.DETAILS, arguments:{"url",jsonMessage["url"]} );
-            _webViewController.loadUrl("https://stagestageclient.mangoworldcar.com" + jsonMessage["url"]);
+            _webViewController.loadUrl("https://client.mangoworldcar.com" + jsonMessage["url"]);
 
             //_webViewController.reload();
 

@@ -38,7 +38,7 @@ class _DetailPage extends State<DetailPage> {
     return Scaffold(
         resizeToAvoidBottomInset: true,
         body: SafeArea(child: WebView(
-          initialUrl: 'https://stageclient.mangoworldcar.com${Uri.decodeComponent(Get.arguments["url"])}',
+          initialUrl: 'https://client.mangoworldcar.com${Uri.decodeComponent(Get.arguments["url"])}',
           debuggingEnabled: false,
           userAgent: "mangoworld",
           gestureNavigationEnabled: false,

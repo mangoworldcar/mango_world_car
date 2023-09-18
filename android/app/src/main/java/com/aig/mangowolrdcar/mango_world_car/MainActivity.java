@@ -1,4 +1,4 @@
-package com.aig.mangowolrdcar.mango_world_car;
+package com.aig.mangowolrdcar.mango_world_car_v2;
 
 import io.flutter.embedding.android.FlutterActivity;
 

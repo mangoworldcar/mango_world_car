@@ -23,7 +23,6 @@ class HomeController extends GetxController {
 
   RxString pageUrl = "".obs;
   RxBool m_b_controllComplete = false.obs;
-  RxBool isLoading = true.obs;
 
 
   final Connectivity _connectivity = Connectivity();
